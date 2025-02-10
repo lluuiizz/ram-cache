@@ -24,27 +24,19 @@ int main(void) {
 	ram_aleatoria(ram);
 	imprimir(ram);
 
-	ram->blocks[8].end_bloco = 10;
-	ram->blocks[8].palavras[0] = 5;
-	ram->blocks[8].palavras[1] = 10;
-	ram->blocks[8].palavras[2] = 15;
-	ram->blocks[8].palavras[3] = 20;
+
 	for (int i = 0; i < L1_MAX; ++i){
 		endereco e;
 		e.endbloco = i;
 		pegar_das_memorias(ram, e, cache);
 	}
-	endereco e;
-	e.endbloco = 2;
-	bloco_memoria *bloco = (bloco_memoria*) malloc(sizeof(bloco_memoria));
-	*bloco = pegar_das_memorias(ram, e, cache);
 
-	printf("bloco endereco: %d\n", bloco->end_bloco);
-	printf("bloco palavra: %d\n", bloco->palavras[1]);
+	imprimir_cache(cache, L1);
 
 
 
-	ram = liberar_ram(ram); free (processor);
+	ram = liberar_ram(ram); free (processor); free(cache);
+
 	
 	return 0;
 }
