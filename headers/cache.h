@@ -16,5 +16,6 @@ typedef struct {
 } caches; 
 
 void iniciar_cache(caches *cache);
+void imprimir_cache(caches *cache, memory_selector memory);
 
 #endif

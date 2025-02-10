@@ -8,7 +8,7 @@ ram.o: ram.c headers/ram.h
 
 cpu.o: cpu.c headers/cpu.h
 	@gcc -c cpu.c
-mmu.o: mmu.c headers/endereco.h headers/cache.h headers/ram.h
+mmu.o: mmu.c headers/mmu.h
 	@gcc -c mmu.c
 
 cache.o: cache.c headers/cache.h
@@ -17,5 +17,7 @@ cache.o: cache.c headers/cache.h
 val: 
 	valgrind --leak-check=full ./exe
 
-
+run: ram.o cpu.o mmu.o cache.o
+	@gcc programas.c ram.o cpu.o mmu.o cache.o -o exe -Wall && ./exe
+	@rm -rf *.o
 

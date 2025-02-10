@@ -1,7 +1,8 @@
+
+#include "headers/ram.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "headers/ram.h"
 
 
 RAM * alocar_ram (int size){
