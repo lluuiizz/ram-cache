@@ -6,9 +6,6 @@ typedef struct {
     int palavras[MAX_PALAVRAS];
     int end_bloco;
     int modified;
-    int custo;
-    int cache_hit;
-    int timestamp;
 } bloco_memoria;
 
 typedef enum {

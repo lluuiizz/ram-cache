@@ -23,17 +23,14 @@ int main(void) {
 
 	ram_aleatoria(ram);
 	imprimir(ram);
-
-
-	for (int i = 0; i < L1_MAX; ++i){
+	for (int i = 0; i < DEFAULT; ++i) {
 		endereco e;
 		e.endbloco = i;
 		pegar_das_memorias(ram, e, cache);
 	}
-
 	imprimir_cache(cache, L1);
-
-
+	printf("L2 --------\n\n\n");
+	imprimir_cache(cache, L2);
 
 	ram = liberar_ram(ram); free (processor); free(cache);
 

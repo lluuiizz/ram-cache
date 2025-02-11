@@ -9,10 +9,7 @@ RAM * alocar_ram (int size){
 	RAM *ram; ram = malloc (sizeof(RAM));
 	ram->blocks = malloc(sizeof(bloco_memoria) * size);
 	for (int i = 0; i < size; ++i){
-
 		ram->blocks[i].modified  = 0;
-		ram->blocks[i].custo     = 0;
-		ram->blocks[i].cache_hit = 0;
 	}
 	ram->size = size;
 	return ram;
