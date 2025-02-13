@@ -23,15 +23,18 @@ int main(void) {
 
 	ram_aleatoria(ram);
 	imprimir(ram);
-	for (int i = 0; i < DEFAULT; ++i) {
-		endereco e;
-		e.endbloco = i;
-		pegar_das_memorias(ram, e, cache);
+	for (int i = 0; i < 11; i++) {
+		endereco e1; e1.endbloco = i;
+		pegar_das_memorias(ram, e1, cache);
 	}
-	imprimir_cache(cache, L1);
-	printf("L2 --------\n\n\n");
-	imprimir_cache(cache, L2);
 
+	printf( "L1 ----------------------\n\n\n\n");
+	imprimir_cache(cache, L1);
+	printf( "L2 ----------------------\n\n\n\n");
+	imprimir_cache(cache, L2);
+	/*printf( "L3 ----------------------\n\n\n\n");
+	imprimir_cache(cache, L3);*/
+	printf("Bloco 0 do Conjunto 0:%d\nBloco 1 do Conjunto 0 %d\n", cache->cache_l1[0].mais_recente, cache->cache_l1[1].mais_recente);
 	ram = liberar_ram(ram); free (processor); free(cache);
 
 	

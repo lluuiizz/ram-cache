@@ -27,31 +27,77 @@ int procura_bloco_vazio (caches *cache, memory_selector cache_looking) {
 }
 bloco_memoria mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_selector begins) {
     if (begins == L1) {
-        change_lru(cache, L1, end_bloco);
-        printf("Movendo para o registrador\n");
-        return cache->cache_l1[end_bloco]; 
+        int conjunto_em_l1 = (end_bloco % CONJUNTOS(L1_MAX)) * BLOCOS_POR_CONJUNTO;
+        int bloco_no_conjunto = (cache->cache_l1[conjunto_em_l1].mais_recente == 1)
+            ? 0
+            : 1;
 
+        return cache->cache_l1[conjunto_em_l1+bloco_no_conjunto];
     }
 
     else if (begins == L2) {
-        int bloco = procura_bloco_vazio(cache, L1);
-        if (bloco != -1) {
-            cache->cache_l1[bloco] = cache->cache_l2[end_bloco];
-            cache->cache_l2[end_bloco].end_bloco = -1;
-            printf("Movendo para L1\n");
-            mover_memorias(ram, cache, bloco, L1);
-        }else {
-            bloco_memoria tmp = cache->cache_l1[cache->indices_used_cachel1[0]];
-            cache->cache_l1[cache->indices_used_cachel1[0]] = cache->cache_l2[end_bloco];
-            cache->cache_l2[end_bloco] = tmp;
-            change_lru(cache, L1, cache->indices_used_cachel1[0]);
-            change_lru(cache, L2, end_bloco);
-            printf("Movendo bloco Endereco %d de L2 para o bloco de endereco %d de L1:", end_bloco, cache->indices_used_cachel1[0]);
-            printf("Resultado: %d\n", cache->cache_l1[cache->indices_used_cachel1[0]].palavras[0]);
+        int conjunto_em_l2 = (end_bloco != 0) ? ((CONJUNTOS(L2_MAX)) % end_bloco )* BLOCOS_POR_CONJUNTO : 0;
+        int bloco_no_conjunto = (cache->cache_l2[conjunto_em_l2].mais_recente == 1)
+            ? 0
+            : 1;
+        int conjunto_em_l1 = (end_bloco != 0 ) ? (CONJUNTOS(L1_MAX) % end_bloco) * BLOCOS_POR_CONJUNTO : 0;
+       
+        if (cache->cache_l1[conjunto_em_l1].end_bloco == -1 && cache->cache_l1[conjunto_em_l1+1].end_bloco == -1) {
+            bloco_memoria tmp = cache->cache_l1[conjunto_em_l1];
+            printf("Conjunto Vazio\n");
+            cache->cache_l1[conjunto_em_l1] = cache->cache_l2[conjunto_em_l2+bloco_no_conjunto] ;
+            cache->cache_l1[conjunto_em_l1].mais_recente = 1;
+            cache->cache_l1[conjunto_em_l1+1].mais_recente = 0;
+            cache->cache_l2[conjunto_em_l2+bloco_no_conjunto] = tmp;
         }
+        else if (cache->cache_l1[conjunto_em_l1].mais_recente == 0) {
+            bloco_memoria tmp = cache->cache_l1[conjunto_em_l1];
+            cache->cache_l1[conjunto_em_l1] = cache->cache_l2[conjunto_em_l2+bloco_no_conjunto];
+            cache->cache_l1[conjunto_em_l1].mais_recente = 1;
+            cache->cache_l1[conjunto_em_l1+1].mais_recente = 0;
+            cache->cache_l2[conjunto_em_l2+bloco_no_conjunto] = tmp;
+        }
+        else {
+            bloco_memoria tmp = cache->cache_l1[conjunto_em_l1+1];
+            cache->cache_l1[conjunto_em_l1+1] = cache->cache_l2[conjunto_em_l2+bloco_no_conjunto];
+            cache->cache_l1[conjunto_em_l1+1].mais_recente = 1;
+            cache->cache_l1[conjunto_em_l1].mais_recente = 0;
+            cache->cache_l2[conjunto_em_l2+bloco_no_conjunto] = tmp;
+        }
+
+        mover_memorias(ram, cache, end_bloco, L1);
+ 
     }
     else if (begins == L3) {
+        int conjunto_em_l3 = (end_bloco != 0) ? (CONJUNTOS(L3_MAX) % end_bloco) * BLOCOS_POR_CONJUNTO : 0;
+        int bloco_no_conjunto = (cache->cache_l3[conjunto_em_l3].mais_recente == 1)
+            ? 0
+            : 1;
+        int conjunto_em_l2 = (end_bloco != 0) ? (CONJUNTOS(L2_MAX) % end_bloco) * BLOCOS_POR_CONJUNTO : 0;
+       
+        if (cache->cache_l2[conjunto_em_l2].end_bloco == -1 && cache->cache_l2[conjunto_em_l2+1].end_bloco == -1) {
+            cache->cache_l2[conjunto_em_l2] = cache->cache_l3[conjunto_em_l3+bloco_no_conjunto] ;
+            cache->cache_l2[conjunto_em_l2].mais_recente = 1;
+            cache->cache_l2[conjunto_em_l2+1].mais_recente = 0;
+            cache->cache_l3[conjunto_em_l3+bloco_no_conjunto].end_bloco = -1;
+        }
+        else if (cache->cache_l2[conjunto_em_l2].mais_recente == 0) {
+            cache->cache_l2[conjunto_em_l2] = cache->cache_l3[conjunto_em_l3+bloco_no_conjunto];
+            cache->cache_l2[conjunto_em_l2].mais_recente = 1;
+            cache->cache_l2[conjunto_em_l2+1].mais_recente = 0;
+            cache->cache_l3[conjunto_em_l3+bloco_no_conjunto].end_bloco = -1;
+        }
+        else {
+            cache->cache_l2[conjunto_em_l2+1] = cache->cache_l3[conjunto_em_l3+bloco_no_conjunto];
+            cache->cache_l2[conjunto_em_l2+1].mais_recente = 1;
+            cache->cache_l2[conjunto_em_l2].mais_recente = 0;
+            cache->cache_l3[conjunto_em_l3+bloco_no_conjunto].end_bloco = -1;
+        }
+
+        mover_memorias(ram, cache, end_bloco, L2);
+        /*
         int bloco = procura_bloco_vazio(cache, L2);
+
         if (bloco != -1) {
             cache->cache_l2[bloco] = cache->cache_l3[end_bloco];
             cache->cache_l3[end_bloco].end_bloco = -1;
@@ -63,10 +109,31 @@ bloco_memoria mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_sel
             cache->cache_l3[end_bloco] = tmp;
             change_lru(cache, L2, cache->indices_used_cachel2[0]);
             change_lru(cache, L3, end_bloco);
-        }
+        }*/
     }
     else if (begins == RAM_MEMORY) {
-        int bloco = procura_bloco_vazio(cache,L3);
+        int conjunto_em_l3 = (end_bloco != 0) ? (CONJUNTOS(L3_MAX) % end_bloco) * BLOCOS_POR_CONJUNTO : 0;
+        int i;
+
+        if (cache->cache_l3[conjunto_em_l3].end_bloco == -1 && cache->cache_l3[conjunto_em_l3+1].end_bloco == -1) {
+            cache->cache_l3[conjunto_em_l3] = ram->blocks[end_bloco];
+            cache->cache_l3[conjunto_em_l3].mais_recente = 1;
+            cache->cache_l3[conjunto_em_l3+1].mais_recente = 0;
+        }
+
+        else if (cache->cache_l3[conjunto_em_l3].mais_recente == 0) {
+            cache->cache_l3[conjunto_em_l3] = ram->blocks[end_bloco];
+            cache->cache_l3[conjunto_em_l3].mais_recente = 1;
+            cache->cache_l3[conjunto_em_l3+1].mais_recente = 0;
+        }
+        else {
+            cache->cache_l3[conjunto_em_l3+1] = ram->blocks[end_bloco];
+            cache->cache_l3[conjunto_em_l3+1].mais_recente = 1;
+            cache->cache_l3[conjunto_em_l3].mais_recente = 0;
+        }
+
+        mover_memorias(ram, cache, end_bloco, L3);
+        /*int bloco = procura_bloco_vazio(cache,L3);
         if (bloco != -1) {
             cache->cache_l3[bloco] = ram->blocks[end_bloco];
             printf("Movendo para L3\n");
@@ -75,48 +142,61 @@ bloco_memoria mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_sel
         else {
             bloco_memoria tmp = cache->cache_l3[cache->indices_used_cachel3[0]];
             cache->cache_l3[cache->indices_used_cachel3[0]] = ram->blocks[end_bloco];
-            if (tmp.modified == 1)
+            if (tmp.mais_recente == 1)
                 ram->blocks[end_bloco] = tmp;
             change_lru(cache, L3, cache->indices_used_cachel3[0]);
-        }
+        }*/
     }
-    
+
 }
 
 int procura_nas_memorias(RAM *ram, caches *cache, endereco e, memory_selector choice) {
     switch(choice)
     {
     case  L1:
-        for (int i = 0; i < L1_MAX; i++) {
-            if (cache->cache_l1[i].end_bloco == e.endbloco){
-                cache->cache_hit_l1 ++;
-                cache->custo += 10;
-                return i;
-            }
+        int bloco_em_l1 = (e.endbloco % CONJUNTOS(L1_MAX)) * BLOCOS_POR_CONJUNTO;
+        if (cache->cache_l1[bloco_em_l1].end_bloco == e.endbloco) {
+            cache->cache_hit_l1++;
+            cache->custo += 10;
+            return bloco_em_l1;
+        }
+        else if (cache->cache_l1[bloco_em_l1+1].end_bloco == e.endbloco){
+            cache->cache_hit_l1++;
+            cache->custo += 10;
+            return bloco_em_l1+1;
         }
         break;
     case  L2:
-        for (int i = 0; i < L2_MAX; i++) {
-            if (cache->cache_l2[i].end_bloco == e.endbloco){
-                cache->cache_hit_l2++;
-                cache->custo += 110;
-                return i;
-            }
+        int bloco_em_l2 = (e.endbloco % CONJUNTOS(L2_MAX)) * BLOCOS_POR_CONJUNTO;
+        if (cache->cache_l2[bloco_em_l2].end_bloco == e.endbloco) {
+            cache->cache_hit_l2++;
+            cache->custo += 110;
+            return bloco_em_l2;
+        }
+        else if (cache->cache_l2[bloco_em_l2+1].end_bloco == e.endbloco) {
+            cache->cache_hit_l2++;
+            cache->custo += 110;
+            return bloco_em_l2+1;
         }
         break;
     case L3:
-        for (int i = 0; i < L3_MAX; i++) {
-            if (cache->cache_l3[i].end_bloco == e.endbloco){
-                cache->cache_hit_l3++;
-                cache->custo += 1110;
-                return i;
-            }
+        int conjunto_em_l3 = (e.endbloco % CONJUNTOS(L3_MAX)) * BLOCOS_POR_CONJUNTO;
+        if (cache->cache_l3[conjunto_em_l3].end_bloco == e.endbloco) {
+            cache->cache_hit_l3++;
+            cache->custo += 1110;
+            return conjunto_em_l3;
         }
+        else if (cache->cache_l3[conjunto_em_l3+1].end_bloco == e.endbloco) {
+            cache->cache_hit_l3++;
+            cache->custo += 1110;
+            return conjunto_em_l3+1;
+        }
+
         break; 
     case RAM_MEMORY:
         for (int i = 0; i < ram->size; i++) {
             if (ram->blocks[i].end_bloco == e.endbloco) {
-                cache->custo += 10110;
+                cache->custo += 11110;
                 return i;
             }
         }

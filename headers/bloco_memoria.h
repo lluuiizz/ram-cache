@@ -5,7 +5,8 @@
 typedef struct {
     int palavras[MAX_PALAVRAS];
     int end_bloco;
-    int modified;
+    int mais_recente;
+    int ja_usado;
 } bloco_memoria;
 
 typedef enum {
