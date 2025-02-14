@@ -6,12 +6,12 @@
 #include "cache.h"
 #include "endereco.h"
 
-int procura_bloco_vazio (caches *cache, memory_selector cache_looking);
+int limpar_conjuntos(RAM *ram, caches *cache, endereco e, memory_selector begins) ;
 int procura_nas_memorias(RAM *ram, caches *cache, endereco e, memory_selector choice);
 int pegar_conjunto(int endereco, memory_selector cache_escolhida);
 
 void atualizar_controles_do_conjunto(caches *cache, endereco e, int end_bloco, memory_selector cache_escolhida);
 
-bloco_memoria mover_memorias (RAM *ram, caches *cache, endereco e, memory_selector begins);
-bloco_memoria pegar_das_memorias (RAM *ram, endereco e, caches *cache);
+bloco_memoria* mover_memorias (RAM *ram, caches *cache, endereco e, memory_selector begins);
+bloco_memoria* pegar_das_memorias (RAM *ram, endereco e, caches *cache);
 #endif

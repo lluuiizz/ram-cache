@@ -24,18 +24,19 @@ int main(void) {
 	ram_aleatoria(ram);
 	imprimir(ram);
 
-	endereco e; e.endbloco = 30;
-	pegar_das_memorias(ram, e, cache);
-	e.endbloco = 530;
-	pegar_das_memorias(ram, e, cache);
-	pegar_das_memorias(ram, e, cache);
-	e.endbloco = 30;
-	pegar_das_memorias(ram, e, cache);
-	e.endbloco = 5030;
-	pegar_das_memorias(ram, e, cache);
+	endereco e1, e2, e3, e4, e5; 
+	e1.endbloco = 0;
+	e2.endbloco = 500;
+	e3.endbloco = 1000;
+	e4.endbloco = 1500;
+	e5.endbloco = 2000;
 
+	pegar_das_memorias(ram, e1, cache);
+	pegar_das_memorias(ram, e2, cache);
+	pegar_das_memorias(ram, e3, cache);
+	pegar_das_memorias(ram, e4, cache);
+	pegar_das_memorias(ram, e5, cache);
 	imprimir_cache(cache, L3);
-	imprimir(ram);
 
 	ram = liberar_ram(ram); free (processor); free(cache);
 
