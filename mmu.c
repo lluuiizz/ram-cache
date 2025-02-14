@@ -25,178 +25,141 @@ int procura_bloco_vazio (caches *cache, memory_selector cache_looking) {
     }
 
 }
-bloco_memoria mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_selector begins) {
-    if (begins == L1) {
-        int conjunto_em_l1 = (end_bloco % CONJUNTOS(L1_MAX)) * BLOCOS_POR_CONJUNTO;
-        int bloco_no_conjunto = (cache->cache_l1[conjunto_em_l1].mais_recente == 1)
-            ? 0
-            : 1;
+int pegar_conjunto(int endereco, memory_selector cache_escolhida) {
+	if (cache_escolhida == L1)
+		return (endereco % CONJUNTOS(L1_MAX)) * BLOCOS_POR_CONJUNTO;
+	else if (cache_escolhida == L2)
+		return (endereco % CONJUNTOS(L2_MAX)) * BLOCOS_POR_CONJUNTO;
+	else // Cache L3
+		return (endereco % CONJUNTOS(L3_MAX)) * BLOCOS_POR_CONJUNTO;
 
-        return cache->cache_l1[conjunto_em_l1+bloco_no_conjunto];
-    }
-
-    else if (begins == L2) {
-        int conjunto_em_l2 = (end_bloco != 0) ? ((CONJUNTOS(L2_MAX)) % end_bloco )* BLOCOS_POR_CONJUNTO : 0;
-        int bloco_no_conjunto = (cache->cache_l2[conjunto_em_l2].mais_recente == 1)
-            ? 0
-            : 1;
-        int conjunto_em_l1 = (end_bloco != 0 ) ? (CONJUNTOS(L1_MAX) % end_bloco) * BLOCOS_POR_CONJUNTO : 0;
-       
-        if (cache->cache_l1[conjunto_em_l1].end_bloco == -1 && cache->cache_l1[conjunto_em_l1+1].end_bloco == -1) {
-            bloco_memoria tmp = cache->cache_l1[conjunto_em_l1];
-            printf("Conjunto Vazio\n");
-            cache->cache_l1[conjunto_em_l1] = cache->cache_l2[conjunto_em_l2+bloco_no_conjunto] ;
-            cache->cache_l1[conjunto_em_l1].mais_recente = 1;
-            cache->cache_l1[conjunto_em_l1+1].mais_recente = 0;
-            cache->cache_l2[conjunto_em_l2+bloco_no_conjunto] = tmp;
-        }
-        else if (cache->cache_l1[conjunto_em_l1].mais_recente == 0) {
-            bloco_memoria tmp = cache->cache_l1[conjunto_em_l1];
-            cache->cache_l1[conjunto_em_l1] = cache->cache_l2[conjunto_em_l2+bloco_no_conjunto];
-            cache->cache_l1[conjunto_em_l1].mais_recente = 1;
-            cache->cache_l1[conjunto_em_l1+1].mais_recente = 0;
-            cache->cache_l2[conjunto_em_l2+bloco_no_conjunto] = tmp;
-        }
-        else {
-            bloco_memoria tmp = cache->cache_l1[conjunto_em_l1+1];
-            cache->cache_l1[conjunto_em_l1+1] = cache->cache_l2[conjunto_em_l2+bloco_no_conjunto];
-            cache->cache_l1[conjunto_em_l1+1].mais_recente = 1;
-            cache->cache_l1[conjunto_em_l1].mais_recente = 0;
-            cache->cache_l2[conjunto_em_l2+bloco_no_conjunto] = tmp;
-        }
-
-        mover_memorias(ram, cache, end_bloco, L1);
- 
-    }
-    else if (begins == L3) {
-        int conjunto_em_l3 = (end_bloco != 0) ? (CONJUNTOS(L3_MAX) % end_bloco) * BLOCOS_POR_CONJUNTO : 0;
-        int bloco_no_conjunto = (cache->cache_l3[conjunto_em_l3].mais_recente == 1)
-            ? 0
-            : 1;
-        int conjunto_em_l2 = (end_bloco != 0) ? (CONJUNTOS(L2_MAX) % end_bloco) * BLOCOS_POR_CONJUNTO : 0;
-       
-        if (cache->cache_l2[conjunto_em_l2].end_bloco == -1 && cache->cache_l2[conjunto_em_l2+1].end_bloco == -1) {
-            cache->cache_l2[conjunto_em_l2] = cache->cache_l3[conjunto_em_l3+bloco_no_conjunto] ;
-            cache->cache_l2[conjunto_em_l2].mais_recente = 1;
-            cache->cache_l2[conjunto_em_l2+1].mais_recente = 0;
-            cache->cache_l3[conjunto_em_l3+bloco_no_conjunto].end_bloco = -1;
-        }
-        else if (cache->cache_l2[conjunto_em_l2].mais_recente == 0) {
-            cache->cache_l2[conjunto_em_l2] = cache->cache_l3[conjunto_em_l3+bloco_no_conjunto];
-            cache->cache_l2[conjunto_em_l2].mais_recente = 1;
-            cache->cache_l2[conjunto_em_l2+1].mais_recente = 0;
-            cache->cache_l3[conjunto_em_l3+bloco_no_conjunto].end_bloco = -1;
-        }
-        else {
-            cache->cache_l2[conjunto_em_l2+1] = cache->cache_l3[conjunto_em_l3+bloco_no_conjunto];
-            cache->cache_l2[conjunto_em_l2+1].mais_recente = 1;
-            cache->cache_l2[conjunto_em_l2].mais_recente = 0;
-            cache->cache_l3[conjunto_em_l3+bloco_no_conjunto].end_bloco = -1;
-        }
-
-        mover_memorias(ram, cache, end_bloco, L2);
-        /*
-        int bloco = procura_bloco_vazio(cache, L2);
-
-        if (bloco != -1) {
-            cache->cache_l2[bloco] = cache->cache_l3[end_bloco];
-            cache->cache_l3[end_bloco].end_bloco = -1;
-            printf("Movendo para L2\n");
-            mover_memorias(ram, cache, bloco, L2);
-        }else {
-            bloco_memoria tmp = cache->cache_l2[cache->indices_used_cachel2[0]];
-            cache->cache_l2[cache->indices_used_cachel2[0]] = cache->cache_l3[end_bloco];
-            cache->cache_l3[end_bloco] = tmp;
-            change_lru(cache, L2, cache->indices_used_cachel2[0]);
-            change_lru(cache, L3, end_bloco);
-        }*/
-    }
-    else if (begins == RAM_MEMORY) {
-        int conjunto_em_l3 = (end_bloco != 0) ? (CONJUNTOS(L3_MAX) % end_bloco) * BLOCOS_POR_CONJUNTO : 0;
-        int i;
-
-        if (cache->cache_l3[conjunto_em_l3].end_bloco == -1 && cache->cache_l3[conjunto_em_l3+1].end_bloco == -1) {
-            cache->cache_l3[conjunto_em_l3] = ram->blocks[end_bloco];
-            cache->cache_l3[conjunto_em_l3].mais_recente = 1;
-            cache->cache_l3[conjunto_em_l3+1].mais_recente = 0;
-        }
-
-        else if (cache->cache_l3[conjunto_em_l3].mais_recente == 0) {
-            cache->cache_l3[conjunto_em_l3] = ram->blocks[end_bloco];
-            cache->cache_l3[conjunto_em_l3].mais_recente = 1;
-            cache->cache_l3[conjunto_em_l3+1].mais_recente = 0;
-        }
-        else {
-            cache->cache_l3[conjunto_em_l3+1] = ram->blocks[end_bloco];
-            cache->cache_l3[conjunto_em_l3+1].mais_recente = 1;
-            cache->cache_l3[conjunto_em_l3].mais_recente = 0;
-        }
-
-        mover_memorias(ram, cache, end_bloco, L3);
-        /*int bloco = procura_bloco_vazio(cache,L3);
-        if (bloco != -1) {
-            cache->cache_l3[bloco] = ram->blocks[end_bloco];
-            printf("Movendo para L3\n");
-            mover_memorias(ram, cache, bloco, L3);
-        }
-        else {
-            bloco_memoria tmp = cache->cache_l3[cache->indices_used_cachel3[0]];
-            cache->cache_l3[cache->indices_used_cachel3[0]] = ram->blocks[end_bloco];
-            if (tmp.mais_recente == 1)
-                ram->blocks[end_bloco] = tmp;
-            change_lru(cache, L3, cache->indices_used_cachel3[0]);
-        }*/
-    }
-
+	return -1;
 }
+
+void atualizar_controles_do_conjunto(caches *cache, endereco e, int end_bloco, memory_selector cache_escolhida) {
+	int menos_recente;
+	int conjunto_na_cache;
+
+	if (cache_escolhida == L1) {
+		conjunto_na_cache = pegar_conjunto(e.endbloco, L1);
+		menos_recente = (end_bloco - conjunto_na_cache) == 0 ? 1 : 0;
+		menos_recente += conjunto_na_cache;
+		cache->cache_l1[end_bloco].mais_recente = 1;
+		cache->cache_l1[menos_recente].mais_recente = 0;
+	}
+	else if (cache_escolhida == L2) {
+		conjunto_na_cache = pegar_conjunto(e.endbloco, L2);
+		menos_recente = (end_bloco - conjunto_na_cache) == 0 ? 1 : 0;
+		menos_recente += conjunto_na_cache;
+		cache->cache_l2[end_bloco].mais_recente = 1;
+		cache->cache_l2[menos_recente].mais_recente = 0;
+		printf("Informações gerais de atualização:\n");
+		printf("O Conjunto para o endereço %d na cache é -- %d\n", e.endbloco, conjunto_na_cache/BLOCOS_POR_CONJUNTO);
+		printf("O bloco %d tem o valor de mais recente setado para -- %d\n", end_bloco, cache->cache_l2[end_bloco].mais_recente );
+		printf("O valor de ja usado do bloco acima foi setado para %d\n", cache->cache_l2[end_bloco].ja_usado );
+		printf("O bloco menos usado é %d\n", menos_recente);
+	}
+	else if (cache_escolhida == L3) {
+		conjunto_na_cache = pegar_conjunto(e.endbloco, L3);
+		menos_recente = (end_bloco - conjunto_na_cache) == 0 ? 1 : 0;
+		menos_recente += conjunto_na_cache;
+		cache->cache_l3[end_bloco].mais_recente = 1;
+		cache->cache_l3[menos_recente].mais_recente = 0;
+		printf("Informações gerais de atualização:\n");
+		printf("O Conjunto para o endereço %d na cache é -- %d\n", e.endbloco, conjunto_na_cache/BLOCOS_POR_CONJUNTO);
+		printf("O bloco %d tem o valor de mais recente setado para -- %d\n", end_bloco, cache->cache_l3[end_bloco].mais_recente );
+		printf("O valor de ja usado do bloco acima foi setado para %d\n", cache->cache_l3[end_bloco].ja_usado );
+		printf("O bloco menos usado é %d\n", menos_recente);
+	}
+	else { // RAM_MEMORY
+		cache->custo += 10110;
+	}
+}
+bloco_memoria mover_memorias (RAM *ram, caches *cache, endereco e, memory_selector begins) {
+	switch(begins) {
+		case L1:
+			break;
+		case L2:
+			break;
+		case L3:
+			break;
+		case RAM_MEMORY:
+			int conjunto_em_l3 = pegar_conjunto(e.endbloco, L3);
+
+			int i;
+			for (i = conjunto_em_l3; i < (conjunto_em_l3+BLOCOS_POR_CONJUNTO); ++i)
+				if (cache->cache_l3[i].end_bloco == -1) break;
+			if (i < (conjunto_em_l3+BLOCOS_POR_CONJUNTO)) {
+				cache->cache_l3[i] = ram->blocks[e.endbloco];
+				atualizar_controles_do_conjunto(cache, e, i, L3);
+			}
+			else {
+				if (cache->cache_l3[conjunto_em_l3].mais_recente == FALSE) {
+					if (cache->cache_l3[conjunto_em_l3].ja_usado == TRUE){
+						int endereco = cache->cache_l3[conjunto_em_l3].end_bloco;
+						ram->blocks[endereco] = cache->cache_l3[conjunto_em_l3];
+						printf("Entrou o bloco de endereco %d da RAM\n", e.endbloco);
+						printf("No bloco de endereco %d da cache l3\n", conjunto_em_l3+1);
+						printf("Com isso, o bloco acima que continhao endereco % da RAM\n", endereco);
+						printf("Atualizou o seu valor!\n");
+					} 
+					cache->cache_l3[conjunto_em_l3] = ram->blocks[e.endbloco];
+					atualizar_controles_do_conjunto(cache, e, conjunto_em_l3, L3);
+				}
+				else {
+					if (cache->cache_l3[conjunto_em_l3+1].ja_usado == TRUE){
+						int endereco = cache->cache_l3[conjunto_em_l3+1].end_bloco;
+						ram->blocks[endereco] = cache->cache_l3[conjunto_em_l3+1];
+						printf("Entrou o bloco de endereco %d da RAM\n", e.endbloco);
+						printf("No bloco de endereco %d da cache l3\n", conjunto_em_l3+1);
+						printf("Com isso, o bloco acima que continhao endereco % da RAM\n", endereco);
+						printf("Atualizou o seu valor!\n");
+					}
+					cache->cache_l3[conjunto_em_l3+1] = ram->blocks[e.endbloco];
+					atualizar_controles_do_conjunto(cache, e, conjunto_em_l3+1, L3);
+				}
+
+			}
+			break;
+		case MISS:
+			break;
+	}
+}
+
 
 int procura_nas_memorias(RAM *ram, caches *cache, endereco e, memory_selector choice) {
     switch(choice)
     {
     case  L1:
-        int bloco_em_l1 = (e.endbloco % CONJUNTOS(L1_MAX)) * BLOCOS_POR_CONJUNTO;
+        int bloco_em_l1 = pegar_conjunto(e.endbloco, L1);
         if (cache->cache_l1[bloco_em_l1].end_bloco == e.endbloco) {
-            cache->cache_hit_l1++;
-            cache->custo += 10;
             return bloco_em_l1;
         }
         else if (cache->cache_l1[bloco_em_l1+1].end_bloco == e.endbloco){
-            cache->cache_hit_l1++;
-            cache->custo += 10;
             return bloco_em_l1+1;
         }
         break;
     case  L2:
-        int bloco_em_l2 = (e.endbloco % CONJUNTOS(L2_MAX)) * BLOCOS_POR_CONJUNTO;
+        int bloco_em_l2 = pegar_conjunto(e.endbloco, L2);
         if (cache->cache_l2[bloco_em_l2].end_bloco == e.endbloco) {
-            cache->cache_hit_l2++;
-            cache->custo += 110;
             return bloco_em_l2;
         }
         else if (cache->cache_l2[bloco_em_l2+1].end_bloco == e.endbloco) {
-            cache->cache_hit_l2++;
-            cache->custo += 110;
             return bloco_em_l2+1;
         }
         break;
     case L3:
-        int conjunto_em_l3 = (e.endbloco % CONJUNTOS(L3_MAX)) * BLOCOS_POR_CONJUNTO;
+        int conjunto_em_l3 = pegar_conjunto(e.endbloco, L3);
         if (cache->cache_l3[conjunto_em_l3].end_bloco == e.endbloco) {
-            cache->cache_hit_l3++;
-            cache->custo += 1110;
             return conjunto_em_l3;
         }
         else if (cache->cache_l3[conjunto_em_l3+1].end_bloco == e.endbloco) {
-            cache->cache_hit_l3++;
-            cache->custo += 1110;
             return conjunto_em_l3+1;
         }
-
-        break; 
+break; 
     case RAM_MEMORY:
         for (int i = 0; i < ram->size; i++) {
             if (ram->blocks[i].end_bloco == e.endbloco) {
-                cache->custo += 11110;
                 return i;
             }
         }
@@ -207,44 +170,53 @@ int procura_nas_memorias(RAM *ram, caches *cache, endereco e, memory_selector ch
     return -1;
 }
 bloco_memoria pegar_das_memorias (RAM *ram, endereco e, caches *cache) {
-    int end_memoria = procura_nas_memorias(ram, cache, e, L1);
-    memory_selector memory_hited = (end_memoria != -1) ? L1 : MISS;
+	memory_selector memorys_to_search [] = {L1, L2, L3, RAM_MEMORY, MISS};
+    memory_selector memory_hited;
 
-    if (end_memoria == -1){
-        end_memoria = procura_nas_memorias(ram, cache, e, L2);
-        memory_hited = L2;
-    }
-    if (end_memoria == -1){
-        end_memoria = procura_nas_memorias(ram, cache, e, L3);
-        memory_hited = L3;
-    }
-    if (end_memoria == -1) {
-        end_memoria = procura_nas_memorias(ram, cache, e, RAM_MEMORY);
-        printf("Achou na ram!!! no bloco %d\n", end_memoria);
-        memory_hited = RAM_MEMORY;
-    }
+	int end_memoria;
+	int i = 0; 
+	do {
+		end_memoria = procura_nas_memorias (ram, cache, e, memorys_to_search[i++]);
+	} while (end_memoria == -1 && memorys_to_search[i] != MISS);
+
+	memory_hited = memorys_to_search[i-1];
 
 
 
     switch (memory_hited) {
         case L1:
-            printf("Estou em l1!\n");
-            return mover_memorias(ram, cache, end_memoria, L1);
+			cache->cache_hit_l1++;
+			cache->cache_l1[end_memoria].ja_usado = 1;
+			cache->custo += 10;
+			atualizar_controles_do_conjunto(cache, e, end_memoria, L1);
+            return mover_memorias(ram, cache, e, L1);
             break;
+
         case L2:
-        printf("Estou em l2!\n");
-            return mover_memorias(ram, cache, end_memoria, L2);
+			cache->cache_hit_l2++;
+			cache->cache_l2[end_memoria].ja_usado = 1;
+			cache->custo += 110;
+			atualizar_controles_do_conjunto(cache, e, end_memoria, L2);
+            return mover_memorias(ram, cache, e, L2);
             break;
+
         case L3:
-        printf("Estou rm l3!\n");
-            return mover_memorias(ram, cache, end_memoria, L3);
+			cache->cache_hit_l3++;
+			cache->cache_l3[end_memoria].ja_usado = 1;
+			cache->custo += 1110;
+			atualizar_controles_do_conjunto(cache, e, end_memoria, L3);
+            return mover_memorias(ram, cache, e, L3);
             break;
+
         case RAM_MEMORY:   
-        printf("Estou rm ram!\n");
-        return mover_memorias(ram, cache, end_memoria, RAM_MEMORY );
-        break;
+			cache->custo += 11110;
+			atualizar_controles_do_conjunto(cache, e, end_memoria, RAM_MEMORY);
+			return mover_memorias(ram, cache, e, RAM_MEMORY );
+			break;
+
         default:
-        break;
+			printf("O bloco pesquisado não pertence a memória!\n");
+			break;
 
     }
 
