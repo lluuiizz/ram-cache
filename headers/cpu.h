@@ -5,8 +5,9 @@
 #include "ram.h"
 #include "bloco_memoria.h"
 #include "cache.h"
+#include "mmu.h"
 typedef struct {
-	bloco_memoria reg1, reg2, reg3;
+	bloco_memoria *reg1, *reg2, *reg3;
 	int PC;
 	
 	instrucao_str *programa;
@@ -15,7 +16,7 @@ typedef struct {
 
 } cpu;
 
-void iniciar (instrucao_str *programa,cpu *processor, RAM *RAM);
+void iniciar (instrucao_str *programa,cpu *processor, RAM *RAM, caches *cache);
 
 
 

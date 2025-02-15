@@ -105,6 +105,7 @@ int procura_nas_memorias(RAM *ram, caches *cache, endereco e, memory_selector ch
         for (int i = 0; i < L2_MAX; i++) {
             if (cache->cache_l2[i].end_bloco == e.endbloco){
                 cache->cache_hit_l2++;
+				cache->cache_miss_l1++;
                 cache->custo += 110;
                 return i;
             }
@@ -113,6 +114,8 @@ int procura_nas_memorias(RAM *ram, caches *cache, endereco e, memory_selector ch
     case L3:
         for (int i = 0; i < L3_MAX; i++) {
             if (cache->cache_l3[i].end_bloco == e.endbloco){
+				cache->cache_miss_l1++;
+				cache->cache_miss_l2++;
                 cache->cache_hit_l3++;
                 cache->custo += 1110;
                 return i;
@@ -122,6 +125,9 @@ int procura_nas_memorias(RAM *ram, caches *cache, endereco e, memory_selector ch
     case RAM_MEMORY:
         for (int i = 0; i < ram->size; i++) {
             if (ram->blocks[i].end_bloco == e.endbloco) {
+				cache->cache_miss_l1++;
+				cache->cache_miss_l2++;
+				cache->cache_miss_l3++;
                 cache->custo += 10110;
                 return i;
             }
@@ -133,26 +139,22 @@ int procura_nas_memorias(RAM *ram, caches *cache, endereco e, memory_selector ch
     return -1;
 }
 bloco_memoria* pegar_das_memorias (RAM *ram, endereco e, caches *cache) {
-    int end_memoria = procura_nas_memorias(ram, cache, e, L1);
-    memory_selector memory_hited = (end_memoria != -1) ? L1 : MISS;
+	memory_selector onde_procurar[] = {L1, L2, L3, RAM_MEMORY, MISS};
+    memory_selector memoria_encontrada;
 
-    if (end_memoria == -1){
-        end_memoria = procura_nas_memorias(ram, cache, e, L2);
-        memory_hited = L2;
-    }
-    if (end_memoria == -1){
-        end_memoria = procura_nas_memorias(ram, cache, e, L3);
-        memory_hited = L3;
-    }
-    if (end_memoria == -1) {
-        end_memoria = procura_nas_memorias(ram, cache, e, RAM_MEMORY);
-        printf("Achou na ram!!! no bloco %d\n", end_memoria);
-        memory_hited = RAM_MEMORY;
-    }
+	int end_memoria;
+	int i = 0;
+
+	do 
+	{
+		end_memoria = procura_nas_memorias(ram, cache, e, onde_procurar[i++]);
+
+	}   while(end_memoria == -1 && onde_procurar[i] != MISS);
+
+	memoria_encontrada = onde_procurar[i-1];
 
 
-
-    switch (memory_hited) {
+    switch (memoria_encontrada) {
         case L1:
             printf("Estou em l1!\n");
             return mover_memorias(ram, cache, end_memoria, L1);

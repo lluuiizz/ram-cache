@@ -22,22 +22,31 @@ int main(void) {
 	iniciar_cache(cache);
 
 	ram_aleatoria(ram);
-	imprimir(ram);
-		for (int i = 0; i < 60; ++i) {
-		endereco e;
-		e.endbloco = i;
-		pegar_das_memorias(ram, e, cache);
-	}
-	endereco e; e.endbloco = 0;
-	pegar_das_memorias(ram, e, cache);
-	imprimir_cache(cache, L1);
-	printf("L2 --------\n\n\n");
-	imprimir_cache(cache, L2);
-	printf("\n\n\nL3 --------\n\n\n");
-	imprimir_cache(cache, L3);
+
+	instrucao_str trecho1[2];
+
+	instrucao_str inst0;
+	inst0.opcode = SUBTRAI;
+	inst0.addr1.endbloco = 1;   // BLOCO 1
+	inst0.addr2.endbloco = 10; //  BLOCO 10
+	inst0.addr3.endbloco = 15;  // BLOCO 15
+
+	inst0.addr1.endpalavra = 1; // PALAVRA 1 BLOCO 1
+	inst0.addr2.endpalavra = 0; // PALAVRA 0 BLOCO 10 
+	inst0.addr3.endpalavra = 2; // PALAVRA 2 BLOCO 15
+
+	trecho1[0] = inst0;
+
+	instrucao_str inst1;
+	inst1.opcode = HALT;
+
+	trecho1[1] = inst1;
+
+	iniciar(trecho1, processor, ram, cache);
+
+
 
 	ram = liberar_ram(ram); free (processor); free(cache);
-
 	
 	return 0;
 }
