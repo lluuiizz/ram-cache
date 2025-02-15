@@ -3,7 +3,7 @@
 
 #include "bloco_memoria.h"
 
-#define DEFAULT 13
+#define DEFAULT 61
 typedef struct {
 	bloco_memoria *blocks;
 	int size;

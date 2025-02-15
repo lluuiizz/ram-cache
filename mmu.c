@@ -23,13 +23,14 @@ int procura_bloco_vazio (caches *cache, memory_selector cache_looking) {
         break;
 
     }
+	return -1;
 
 }
-bloco_memoria mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_selector begins) {
+bloco_memoria* mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_selector begins) {
     if (begins == L1) {
         change_lru(cache, L1, end_bloco);
         printf("Movendo para o registrador\n");
-        return cache->cache_l1[end_bloco]; 
+        return &cache->cache_l1[end_bloco]; 
 
     }
 
@@ -42,10 +43,12 @@ bloco_memoria mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_sel
             mover_memorias(ram, cache, bloco, L1);
         }else {
             bloco_memoria tmp = cache->cache_l1[cache->indices_used_cachel1[0]];
+			int tmp_indice = cache->indices_used_cachel1[0];
             cache->cache_l1[cache->indices_used_cachel1[0]] = cache->cache_l2[end_bloco];
             cache->cache_l2[end_bloco] = tmp;
             change_lru(cache, L1, cache->indices_used_cachel1[0]);
             change_lru(cache, L2, end_bloco);
+			mover_memorias(ram, cache, tmp_indice, L1);
             printf("Movendo bloco Endereco %d de L2 para o bloco de endereco %d de L1:", end_bloco, cache->indices_used_cachel1[0]);
             printf("Resultado: %d\n", cache->cache_l1[cache->indices_used_cachel1[0]].palavras[0]);
         }
@@ -59,10 +62,12 @@ bloco_memoria mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_sel
             mover_memorias(ram, cache, bloco, L2);
         }else {
             bloco_memoria tmp = cache->cache_l2[cache->indices_used_cachel2[0]];
+			int tmp_indice = cache->indices_used_cachel2[0];
             cache->cache_l2[cache->indices_used_cachel2[0]] = cache->cache_l3[end_bloco];
             cache->cache_l3[end_bloco] = tmp;
             change_lru(cache, L2, cache->indices_used_cachel2[0]);
             change_lru(cache, L3, end_bloco);
+			mover_memorias(ram, cache, tmp_indice, L2);
         }
     }
     else if (begins == RAM_MEMORY) {
@@ -77,6 +82,7 @@ bloco_memoria mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_sel
             cache->cache_l3[cache->indices_used_cachel3[0]] = ram->blocks[end_bloco];
             if (tmp.modified == 1)
                 ram->blocks[end_bloco] = tmp;
+			mover_memorias(ram, cache, bloco, L3);
             change_lru(cache, L3, cache->indices_used_cachel3[0]);
         }
     }
@@ -126,7 +132,7 @@ int procura_nas_memorias(RAM *ram, caches *cache, endereco e, memory_selector ch
     }
     return -1;
 }
-bloco_memoria pegar_das_memorias (RAM *ram, endereco e, caches *cache) {
+bloco_memoria* pegar_das_memorias (RAM *ram, endereco e, caches *cache) {
     int end_memoria = procura_nas_memorias(ram, cache, e, L1);
     memory_selector memory_hited = (end_memoria != -1) ? L1 : MISS;
 
