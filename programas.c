@@ -27,13 +27,13 @@ int main(void) {
 
 	instrucao_str inst0;
 	inst0.opcode = SUBTRAI;
-	inst0.addr1.endbloco = 1;   // BLOCO 1
-	inst0.addr2.endbloco = 10; //  BLOCO 10
-	inst0.addr3.endbloco = 15;  // BLOCO 15
+	inst0.addr1.endbloco = 0;   // BLOCO 1
+	inst0.addr2.endbloco = 0; //  BLOCO 10
+	inst0.addr3.endbloco = 2;  // BLOCO 15
 
-	inst0.addr1.endpalavra = 1; // PALAVRA 1 BLOCO 1
-	inst0.addr2.endpalavra = 0; // PALAVRA 0 BLOCO 10 
-	inst0.addr3.endpalavra = 2; // PALAVRA 2 BLOCO 15
+	inst0.addr1.endpalavra = 0; // PALAVRA 1 BLOCO 1
+	inst0.addr2.endpalavra = 1; // PALAVRA 0 BLOCO 10 
+	inst0.addr3.endpalavra = 1; // PALAVRA 2 BLOCO 15
 
 	trecho1[0] = inst0;
 
@@ -43,6 +43,8 @@ int main(void) {
 	trecho1[1] = inst1;
 
 	iniciar(trecho1, processor, ram, cache);
+
+	imprimir_cache(cache, L1);
 
 
 

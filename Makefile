@@ -1,4 +1,4 @@
-all: ram.o cpu.o mmu.o cache.o
+exitall: ram.o cpu.o mmu.o cache.o
 	@gcc programas.c ram.o cpu.o mmu.o cache.o -o exe -Wall
 	@rm -rf *.o
 

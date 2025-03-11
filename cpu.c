@@ -18,9 +18,9 @@ void iniciar (instrucao_str *programa,cpu *processor, RAM *RAM, caches *cache) {
 		processor->opcode = inst->opcode;
 
 		if (inst->opcode != -1){
-			processor->reg1 = pegar_das_memorias(RAM, inst->addr1, cache);
-			processor->reg2 = pegar_das_memorias(RAM, inst->addr2, cache);
-			processor->reg3 = pegar_das_memorias(RAM, inst->addr3, cache);
+			processor->reg1 = pegar_das_memorias(RAM, inst->addr1, cache); // Bloco 1 
+			processor->reg2 = pegar_das_memorias(RAM, inst->addr2, cache); // Bloco 10
+			processor->reg3 = pegar_das_memorias(RAM, inst->addr3, cache); // Bloco 15
 		}
 
 			
