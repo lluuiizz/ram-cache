@@ -1,5 +1,5 @@
 exitall: ram.o cpu.o mmu.o cache.o
-	@gcc programas.c ram.o cpu.o mmu.o cache.o -o exe -Wall
+	@gcc program_reader.c ram.o cpu.o mmu.o cache.o -o exe -Wall
 	@rm -rf *.o
 
 
@@ -18,6 +18,6 @@ val:
 	valgrind --leak-check=full ./exe
 
 run: ram.o cpu.o mmu.o cache.o
-	@gcc programas.c ram.o cpu.o mmu.o cache.o -o exe -Wall && ./exe
+	@gcc program_reader.c ram.o cpu.o mmu.o cache.o -o exe -Wall && ./exe
 	@rm -rf *.o
 

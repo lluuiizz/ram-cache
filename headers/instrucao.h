@@ -2,9 +2,9 @@
 #define __INSTRUCAO_H
 
 
-#define HALT -1
-#define	SOMA 0
-#define SUBTRAI 1
+#define HALT 0
+#define	SOMA 1
+#define SUBTRAI 2
 #define	COPIA_pRAM 2
 #define COPIA_pREG 3
 #define SALVA_nREG 4

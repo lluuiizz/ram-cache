@@ -7,20 +7,20 @@ void iniciar (instrucao_str *programa,cpu *processor, RAM *RAM, caches *cache) {
 	
 	processor->programa = programa;
 	processor->PC = 0;
-	processor->opcode = 0;
+	processor->opcode = -1;
 
 
 
-	while (processor->opcode != -1){
+	while (processor->opcode != HALT){
 		instrucao_str *inst;
 		inst = malloc(sizeof(instrucao_str));
 		inst = &processor->programa[processor->PC];
 		processor->opcode = inst->opcode;
 
-		if (inst->opcode != -1){
-			processor->reg1 = pegar_das_memorias(RAM, inst->addr1, cache); // Bloco 1 
-			processor->reg2 = pegar_das_memorias(RAM, inst->addr2, cache); // Bloco 10
-			processor->reg3 = pegar_das_memorias(RAM, inst->addr3, cache); // Bloco 15
+		if (inst->opcode != HALT){
+			processor->reg1 = pegar_das_memorias(RAM, inst->addr1, cache); 
+			processor->reg2 = pegar_das_memorias(RAM, inst->addr2, cache);
+			processor->reg3 = pegar_das_memorias(RAM, inst->addr3, cache);
 		}
 
 			
@@ -29,7 +29,7 @@ void iniciar (instrucao_str *programa,cpu *processor, RAM *RAM, caches *cache) {
 		switch (processor->opcode) {
 			case HALT: // HALT
 				printf("Programa terminou!!\n");
-				imprimir(RAM);
+				//imprimir(RAM);
 				break;
 				
 			case SOMA: // SOMA
@@ -111,7 +111,7 @@ void iniciar (instrucao_str *programa,cpu *processor, RAM *RAM, caches *cache) {
 
 		}
 
-
+		free(inst);
 		processor->PC += 1;
 
 
