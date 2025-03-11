@@ -111,7 +111,6 @@ void iniciar (instrucao_str *programa,cpu *processor, RAM *RAM, caches *cache) {
 
 		}
 
-		free(inst);
 		processor->PC += 1;
 
 
