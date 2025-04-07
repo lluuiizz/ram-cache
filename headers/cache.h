@@ -6,8 +6,8 @@
 #include "ram.h"
 
 #define L1_MAX 10
-#define L2_MAX 100
-#define L3_MAX 1000
+#define L2_MAX 30
+#define L3_MAX 60
 
 
 typedef struct {

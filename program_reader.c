@@ -4,48 +4,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int main(void) {
-	RAM *ram; ram = alocar_ram(DEFAULT);
-	cpu *processor; processor = malloc (sizeof(cpu));
-	caches *cache; cache = malloc(sizeof(caches));
+void ler_programa(char *nome_arquivo, RAM *ram, cpu *processor, caches *cache){
 
-	iniciar_cache(cache);
-	ram_vazia(ram);
-
-	if (!(ram != NULL && cache != NULL && processor != NULL)) {
-		printf("Aconteceu algum erro na alocação!\n");
-		return -1;
-
-	}
-	gerar_memoria_externa();
-
-	/*
-	instrucao_str novo;
-	novo.opcode = SOMA;
-
-	novo.addr1.endbloco = 0;
-	novo.addr1.endpalavra = 0;
-	novo.addr2.endbloco = 1;
-	novo.addr2.endpalavra= 0;
-	novo.addr3.endbloco = 2;
-	novo.addr3.endpalavra = 0;
-
-	instrucao_str halt;
-	halt.opcode = HALT;
-
-	instrucao_str trecho[2];
-	trecho[0] = novo;
-	trecho[1] = halt;
-	iniciar(trecho, processor, ram, cache);
-
-
-	imprimir_cache(cache, L1);
-	imprimir(ram);
-*/	
-
-
-	
-	FILE *fp = fopen("./instructions.txt", "r");
+	FILE *fp = fopen(nome_arquivo, "r");
 
 
 	char line_buffer[100];
@@ -69,7 +30,25 @@ int main(void) {
 
 	fclose(fp);
 
+}
+int main(void) {
+	RAM *ram; ram = alocar_ram(DEFAULT);
+	cpu *processor; processor = malloc (sizeof(cpu));
+	caches *cache; cache = malloc(sizeof(caches));
+
+	iniciar_cache(cache);
+	ram_vazia(ram);
+
+	if (!(ram != NULL && cache != NULL && processor != NULL)) {
+		printf("Aconteceu algum erro na alocação!\n");
+		return -1;
+
+	}
+	gerar_memoria_externa();
+
 	
+	ler_programa("instructions.txt", ram, processor, cache);
+
 
 	liberar_ram(ram); free (processor); free(cache);
 	

@@ -5,6 +5,8 @@
 #include <string.h>
 
 
+#define N_BLOCOS 10000
+#define N_PALAVRAS 4
 
 void gerar_memoria_externa(void){
     // Inicializa o gerador de números aleatórios
@@ -18,8 +20,8 @@ void gerar_memoria_externa(void){
     }
 
     // Gera 10 mil linhas com 4 números cada
-    for (int i = 0; i < 10000; i++) {
-        for (int j = 0; j < 4; j++) {
+    for (int i = 0; i < N_BLOCOS; i++) {
+        for (int j = 0; j < N_PALAVRAS; j++) {
             // Gera um número entre 0 e 999
             int numero = rand() % 1000;
             fprintf(arquivo, "%d", numero);
@@ -34,7 +36,7 @@ void gerar_memoria_externa(void){
 
     // Fecha o arquivo
     fclose(arquivo);
-    printf("Arquivo gerado com sucesso: numeros.txt\n");
+    printf("Arquivo gerado com sucesso: memoria_externa.txt\n");
 
 
 

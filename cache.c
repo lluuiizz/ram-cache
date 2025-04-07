@@ -71,20 +71,20 @@ void imprimir_cache(caches *cache, memory_selector memory){
         break;
         case L2:
         for (int i = 0; i < L2_MAX; ++i) {
-            //printf("Bloco %d\n", i);
-            //printf("Endereco: %d\n", cache->cache_l2[i].end_bloco);
-            //printf("MODIFIED: %d\n", cache->cache_l2[i].modified);
-            //printf("CACHE HITS: %d\n", cache->cache_hit_l2);
-            //printf("Palavras: %d - %d - %d - %d\n", cache->cache_l2[i].palavras[0], cache->cache_l2[i].palavras[1], cache->cache_l2[i].palavras[2], cache->cache_l2[i].palavras[3]);
+            printf("Bloco %d\n", i);
+            printf("Endereco: %d\n", cache->cache_l2[i].end_bloco);
+            printf("MODIFIED: %d\n", cache->cache_l2[i].modified);
+            printf("CACHE HITS: %d\n", cache->cache_hit_l2);
+            printf("Palavras: %d - %d - %d - %d\n", cache->cache_l2[i].palavras[0], cache->cache_l2[i].palavras[1], cache->cache_l2[i].palavras[2], cache->cache_l2[i].palavras[3]);
         }
         break;
         case L3:
         for (int i = 0; i < L3_MAX; ++i) {
-            //printf("Bloco %d\n", i);
-            //printf("Endereco: %d\n", cache->cache_l3[i].end_bloco);
-            //printf("MODIFIED: %d\n", cache->cache_l3[i].modified);
-            //printf("CACHE HITS: %d\n", cache->cache_hit_l3);
-            //printf("Palavras: %d - %d - %d - %d\n", cache->cache_l3[i].palavras[0], cache->cache_l3[i].palavras[1], cache->cache_l3[i].palavras[2], cache->cache_l3[i].palavras[3]);
+            printf("Bloco %d\n", i);
+            printf("Endereco: %d\n", cache->cache_l3[i].end_bloco);
+            printf("MODIFIED: %d\n", cache->cache_l3[i].modified);
+            printf("CACHE HITS: %d\n", cache->cache_hit_l3);
+            printf("Palavras: %d - %d - %d - %d\n", cache->cache_l3[i].palavras[0], cache->cache_l3[i].palavras[1], cache->cache_l3[i].palavras[2], cache->cache_l3[i].palavras[3]);
         }
         break;
 		default:

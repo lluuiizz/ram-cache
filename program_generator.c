@@ -4,11 +4,11 @@
 #include <string.h>
 #include <time.h>
 
-#define N_INST 10000 //numero de instrucoes
+#define N_INST 100 //numero de instrucoes
 #define N_FOR 5     //numero de instrucoes que vao se repetir
-#define N_MEM 1000  //numero da memoria para endereco do bloco
+#define N_MEM 10000  //numero da memoria para endereco do bloco
 #define N_PROB 50   //probabilidade de repeticao
-#define N_OPCODE 3  //numero maximo de opcodes
+#define N_OPCODE 3 //numero maximo de opcodes
 #define N_WORD 4    //numero de palavras no bloco
 
 int rep[5][7];
@@ -22,7 +22,7 @@ int main() {
 }
 
 void instGenerator() {
-    FILE *arquivo = fopen("instructions.txt", "w");
+    FILE *arquivo = fopen("tratador_interrupcao.txt", "w");
     int random;
     int instruc[8] = {6, 6, 6, 6, 6, 6, 6, 6};
     srand(time(NULL));
