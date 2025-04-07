@@ -14,7 +14,7 @@ void iniciar (instrucao_str *programa,cpu *processor, RAM *RAM, caches *cache) {
 	while (processor->opcode != HALT){
 		instrucao_str *inst;
 		inst = malloc(sizeof(instrucao_str));
-		inst = &processor->programa[processor->PC];
+		inst = &processor->programa[processor->PC++];
 		processor->opcode = inst->opcode;
 
 		if (inst->opcode != HALT){
@@ -111,7 +111,6 @@ void iniciar (instrucao_str *programa,cpu *processor, RAM *RAM, caches *cache) {
 
 		}
 
-		processor->PC += 1;
 
 
 	}

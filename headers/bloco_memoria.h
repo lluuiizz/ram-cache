@@ -13,6 +13,7 @@ typedef enum {
     L2,
     L3,
     RAM_MEMORY,
+	EXTERNA,
     MISS
 
 } memory_selector;

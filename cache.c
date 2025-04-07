@@ -1,4 +1,5 @@
 #include "headers/cache.h"
+#include "headers/ram.h"
 #include <stdio.h>
 
 void iniciar_cache(caches *cache) {
@@ -61,10 +62,10 @@ void imprimir_cache(caches *cache, memory_selector memory){
 			//printf("CACHE HITS:   %d\n", cache->cache_hit_l1);
 			//printf("CACHE MISSES: %d\n\n", cache->cache_miss_l1);
         for (int i = 0; i < L1_MAX; ++i) {
-            //printf("Bloco %d\n", i);
-            //printf("Endereco: %d\n", cache->cache_l1[i].end_bloco);
-            //printf("MODIFIED: %d\n", cache->cache_l1[i].modified);
-            //printf("Palavras: %d - %d - %d - %d\n", cache->cache_l1[i].palavras[0], cache->cache_l1[i].palavras[1], cache->cache_l1[i].palavras[2], cache->cache_l1[i].palavras[3]);
+            printf("Bloco %d\n", i);
+            printf("Endereco: %d\n", cache->cache_l1[i].end_bloco);
+            printf("MODIFIED: %d\n", cache->cache_l1[i].modified);
+            printf("Palavras: %d - %d - %d - %d\n", cache->cache_l1[i].palavras[0], cache->cache_l1[i].palavras[1], cache->cache_l1[i].palavras[2], cache->cache_l1[i].palavras[3]);
 
         }
         break;

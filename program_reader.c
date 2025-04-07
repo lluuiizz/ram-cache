@@ -1,5 +1,6 @@
 #include "headers/cpu.h"
 #include "headers/ram.h"
+#include "headers/memoria_externa.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -9,9 +10,41 @@ int main(void) {
 	caches *cache; cache = malloc(sizeof(caches));
 
 	iniciar_cache(cache);
+	ram_vazia(ram);
 
-	ram_aleatoria(ram);
+	if (!(ram != NULL && cache != NULL && processor != NULL)) {
+		printf("Aconteceu algum erro na alocação!\n");
+		return -1;
 
+	}
+	gerar_memoria_externa();
+
+	/*
+	instrucao_str novo;
+	novo.opcode = SOMA;
+
+	novo.addr1.endbloco = 0;
+	novo.addr1.endpalavra = 0;
+	novo.addr2.endbloco = 1;
+	novo.addr2.endpalavra= 0;
+	novo.addr3.endbloco = 2;
+	novo.addr3.endpalavra = 0;
+
+	instrucao_str halt;
+	halt.opcode = HALT;
+
+	instrucao_str trecho[2];
+	trecho[0] = novo;
+	trecho[1] = halt;
+	iniciar(trecho, processor, ram, cache);
+
+
+	imprimir_cache(cache, L1);
+	imprimir(ram);
+*/	
+
+
+	
 	FILE *fp = fopen("./instructions.txt", "r");
 
 
@@ -36,8 +69,9 @@ int main(void) {
 
 	fclose(fp);
 
+	
 
-	ram = liberar_ram(ram); free (processor); free(cache);
+	liberar_ram(ram); free (processor); free(cache);
 	
 	return 0;
 }

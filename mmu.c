@@ -1,9 +1,10 @@
 #include "headers/endereco.h"
 #include "headers/ram.h"
 #include "headers/cache.h"
+#include "headers/memoria_externa.h"
 #include <stdio.h>
 
-int procura_bloco_vazio (caches *cache, memory_selector cache_looking) {
+int procura_bloco_vazio (caches *cache, RAM *ram, memory_selector cache_looking) {
 
     int i;
     switch (cache_looking) {
@@ -19,6 +20,11 @@ int procura_bloco_vazio (caches *cache, memory_selector cache_looking) {
             for (i = 0; cache->cache_l3[i].end_bloco != -1 && i < L3_MAX; i++);
             return (i < L3_MAX) ? i : -1;
             break;
+		case RAM_MEMORY:
+            for (i = 0; ram->blocks[i].end_bloco != -1 && i < DEFAULT; i++);
+            return (i < DEFAULT) ? i : -1;
+            break;
+			break;
         default:
         break;
 
@@ -28,6 +34,7 @@ int procura_bloco_vazio (caches *cache, memory_selector cache_looking) {
 }
 bloco_memoria* mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_selector begins) {
     if (begins == L1) {
+		printf("Agora estou na L1\n\n");
         change_lru(cache, L1, end_bloco);
         //printf("Movendo para o registrador\n");
         return &cache->cache_l1[end_bloco]; 
@@ -35,7 +42,8 @@ bloco_memoria* mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_se
     }
 
     else if (begins == L2) {
-        int bloco = procura_bloco_vazio(cache, L1);
+		printf("Agora estou na L2\n\n");
+        int bloco = procura_bloco_vazio(cache, ram,  L1);
         if (bloco != -1) {
             cache->cache_l1[bloco] = cache->cache_l2[end_bloco];
             cache->cache_l2[end_bloco].end_bloco = -1;
@@ -54,7 +62,8 @@ bloco_memoria* mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_se
         }
     }
     else if (begins == L3) {
-        int bloco = procura_bloco_vazio(cache, L2);
+		printf("Agora estou na L3\n\n");
+        int bloco = procura_bloco_vazio(cache, ram,  L2);
         if (bloco != -1) {
             cache->cache_l2[bloco] = cache->cache_l3[end_bloco];
             cache->cache_l3[end_bloco].end_bloco = -1;
@@ -71,7 +80,8 @@ bloco_memoria* mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_se
         }
     }
     else if (begins == RAM_MEMORY) {
-        int bloco = procura_bloco_vazio(cache,L3);
+		printf("Agora estou na RAM\n\n");
+        int bloco = procura_bloco_vazio(cache, ram, L3);
         if (bloco != -1) {
             cache->cache_l3[bloco] = ram->blocks[end_bloco];
             //printf("Movendo para L3\n");
@@ -82,10 +92,36 @@ bloco_memoria* mover_memorias (RAM *ram, caches *cache, int end_bloco, memory_se
             cache->cache_l3[cache->indices_used_cachel3[0]] = ram->blocks[end_bloco];
             if (tmp.modified == 1)
                 ram->blocks[end_bloco] = tmp;
-			mover_memorias(ram, cache, bloco, L3);
             change_lru(cache, L3, cache->indices_used_cachel3[0]);
+			change_lru(cache, RAM_MEMORY, end_bloco);
+			mover_memorias(ram, cache, bloco, L3);
         }
     }
+	else {
+		printf("Estou procurando na memoria externa\n\n\n");
+        int bloco = procura_bloco_vazio(cache, ram, RAM_MEMORY);
+        if (bloco != -1) {
+            //printf("Movendo para L3\n");
+			ram->blocks[bloco] = obter_bloco(end_bloco);
+			ram->blocks[bloco].end_bloco = end_bloco;
+			ram->blocks[bloco].modified = 0;
+			printf("Obtemos o bloco novo da memoria externa!!!\n");
+			printf("Palavras: %d %d %d %d\n", ram->blocks[bloco].palavras[0], ram->blocks[bloco].palavras[1], ram->blocks[bloco].palavras[2], ram->blocks[bloco].palavras[3]);
+            mover_memorias(ram, cache, bloco, RAM_MEMORY);
+        }
+        else {
+			printf("Nao achou vazio na RAM!!!\n\n\n");
+            bloco_memoria tmp = ram->blocks[ram->indices_used_ram[0]];
+            ram->blocks[ram->indices_used_ram[0]] = obter_bloco(end_bloco);
+			ram->blocks[ram->indices_used_ram[0]].end_bloco = end_bloco;
+			ram->blocks[ram->indices_used_ram[0]].modified = 0;
+            if (tmp.modified == 1)
+				modificar_bloco(tmp, tmp.end_bloco);
+			mover_memorias(ram, cache, ram->indices_used_ram[0], RAM_MEMORY);
+            change_lru_ram( ram, ram->indices_used_ram[0]);
+        }
+
+	}
     
 }
 
@@ -139,7 +175,7 @@ int procura_nas_memorias(RAM *ram, caches *cache, endereco e, memory_selector ch
     return -1;
 }
 bloco_memoria* pegar_das_memorias (RAM *ram, endereco e, caches *cache) {
-	memory_selector onde_procurar[] = {L1, L2, L3, RAM_MEMORY, MISS};
+	memory_selector onde_procurar[] = {L1, L2, L3, RAM_MEMORY, EXTERNA, MISS};
     memory_selector memoria_encontrada;
 
 	int end_memoria;
@@ -168,10 +204,11 @@ bloco_memoria* pegar_das_memorias (RAM *ram, endereco e, caches *cache) {
             return mover_memorias(ram, cache, end_memoria, L3);
             break;
         case RAM_MEMORY:   
-        //printf("Estou rm ram!\n");
+        printf("Estou rm ram!\n");
         return mover_memorias(ram, cache, end_memoria, RAM_MEMORY );
         break;
         default:
+			return mover_memorias(ram, cache, e.endbloco, MISS);
         break;
 
     }
